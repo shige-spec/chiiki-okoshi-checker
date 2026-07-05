@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="728" height="90" viewBox="0 0 728 90">
+  <rect width="728" height="90" fill="#E8F8F8"/>
+  <rect x="1" y="1" width="726" height="88" fill="none" stroke="#3EBFBF" stroke-width="2"/>
+  <rect x="16" y="14" width="696" height="62" fill="#3EBFBF" opacity="0.12" rx="4"/>
+  <text x="364" y="40" text-anchor="middle" fill="#005A5A" font-family="sans-serif" font-size="18" font-weight="bold">SAMPLE ?????</text>
+  <text x="364" y="66" text-anchor="middle" fill="#FF8C42" font-family="sans-serif" font-size="16" font-weight="bold">728?90</text>
+</svg>
