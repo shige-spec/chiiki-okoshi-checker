@@ -18,20 +18,12 @@ import municipalitiesData from "@/data/municipalities.json";
 import matrixData from "@/data/matrix.json";
 import zonesData from "@/data/disadvantaged-zones.json";
 import { evaluateEligibility } from "@/lib/eligibility";
-import { cn } from "@/lib/utils";
+import { JudgmentSymbolIcon } from "@/components/judgment-symbol-icon";
 
 const municipalities = municipalitiesData as Municipality[];
 const matrix = matrixData.matrix as JudgmentSymbol[][];
 const symbolMeta = matrixData.symbolMeta as Record<JudgmentSymbol, SymbolMeta>;
 const zonesByMunicipality = zonesData as Record<string, import("@/lib/types").DisadvantagedZone[]>;
-
-const SYMBOL_PILL_CLASS: Record<JudgmentSymbol, string> = {
-  "○": "symbol-pill-o",
-  "△": "symbol-pill-tri",
-  "▲": "symbol-pill-tri-up",
-  "□": "symbol-pill-sq",
-  "×": "symbol-pill-x",
-};
 
 const SYMBOL_STYLES: Record<
   JudgmentSymbol,
@@ -102,14 +94,11 @@ function ResultPanel({ result }: { result: EligibilityResult }) {
               {result.to.pref} {result.to.name}
             </p>
           </div>
-          <span
-            className={cn(
-              SYMBOL_PILL_CLASS[result.symbol],
-              "size-24! shrink-0 border-[3px]! text-5xl shadow-lg",
-            )}
-          >
-            {result.symbol}
-          </span>
+          <JudgmentSymbolIcon
+            symbol={result.symbol}
+            size={96}
+            className="shadow-lg"
+          />
         </div>
       </div>
 
@@ -340,9 +329,7 @@ export function SymbolLegend() {
                 key={sym}
                 className="flex items-start gap-4 px-6 py-4 transition-colors hover:bg-brand-light/10"
               >
-                <span className={cn(SYMBOL_PILL_CLASS[sym], "size-10! shrink-0 text-base")}>
-                  {sym}
-                </span>
+                <JudgmentSymbolIcon symbol={sym} size={40} />
                 <div className="min-w-0 flex-1">
                   <p className="font-bold text-brand-dark">{symbolMeta[sym].title}</p>
                   <p className="mt-0.5 text-sm text-muted-foreground">{symbolMeta[sym].nextStep}</p>

@@ -158,21 +158,6 @@
   .stat-icon-circle {
     @apply flex size-9 shrink-0 items-center justify-center rounded-full;
   }
-  .symbol-pill-o {
-    @apply flex size-11 items-center justify-center rounded-full border-2 border-emerald-500 bg-white text-base font-black text-emerald-600;
-  }
-  .symbol-pill-tri {
-    @apply flex size-11 items-center justify-center rounded-full border-2 border-amber-400 bg-white text-base font-black text-amber-500;
-  }
-  .symbol-pill-tri-up {
-    @apply flex size-11 items-center justify-center rounded-full border-2 border-orange-400 bg-white text-base font-black text-orange-500;
-  }
-  .symbol-pill-sq {
-    @apply flex size-11 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-base font-black text-slate-500;
-  }
-  .symbol-pill-x {
-    @apply flex size-11 items-center justify-center rounded-full border-2 border-red-500 bg-white text-base font-black text-red-500;
-  }
   .field-select {
     @apply inline-flex h-12 w-full items-center justify-between rounded-xl border border-brand-muted/60 bg-[#fafbfc] px-4 text-base font-medium text-muted-foreground shadow-sm transition-all hover:border-brand-muted md:text-sm;
   }
