@@ -18,11 +18,20 @@ import municipalitiesData from "@/data/municipalities.json";
 import matrixData from "@/data/matrix.json";
 import zonesData from "@/data/disadvantaged-zones.json";
 import { evaluateEligibility } from "@/lib/eligibility";
+import { cn } from "@/lib/utils";
 
 const municipalities = municipalitiesData as Municipality[];
 const matrix = matrixData.matrix as JudgmentSymbol[][];
 const symbolMeta = matrixData.symbolMeta as Record<JudgmentSymbol, SymbolMeta>;
 const zonesByMunicipality = zonesData as Record<string, import("@/lib/types").DisadvantagedZone[]>;
+
+const SYMBOL_PILL_CLASS: Record<JudgmentSymbol, string> = {
+  "○": "symbol-pill-o",
+  "△": "symbol-pill-tri",
+  "▲": "symbol-pill-tri-up",
+  "□": "symbol-pill-sq",
+  "×": "symbol-pill-x",
+};
 
 const SYMBOL_STYLES: Record<
   JudgmentSymbol,
@@ -93,11 +102,14 @@ function ResultPanel({ result }: { result: EligibilityResult }) {
               {result.to.pref} {result.to.name}
             </p>
           </div>
-          <div
-            className={`flex size-24 shrink-0 items-center justify-center rounded-2xl text-5xl font-black shadow-lg ring-4 ${style.badge} ${style.ring}`}
+          <span
+            className={cn(
+              SYMBOL_PILL_CLASS[result.symbol],
+              "size-24! shrink-0 border-[3px]! text-5xl shadow-lg",
+            )}
           >
             {result.symbol}
-          </div>
+          </span>
         </div>
       </div>
 
@@ -311,57 +323,24 @@ export function EligibilityChecker() {
 }
 
 export function SymbolLegend() {
-  const shortLabels: Record<JudgmentSymbol, string> = {
-    "○": "要件を満たす",
-    "△": "一部条件で満たす",
-    "▲": "条件付きで満たす",
-    "□": "要件を満たさない",
-    "×": "明確に満たさない",
-  };
-
-  const pillClass: Record<JudgmentSymbol, string> = {
-    "○": "symbol-pill-o",
-    "△": "symbol-pill-tri",
-    "▲": "symbol-pill-tri-up",
-    "□": "symbol-pill-sq",
-    "×": "symbol-pill-x",
-  };
-
   return (
-    <section className="space-y-6">
-      <div className="diagnostic-card px-4 py-6 md:px-8 md:py-7">
-        <h2 className="mb-5 text-center text-sm font-bold text-brand-dark md:text-base">
-          判定結果の見方（5段階）
-        </h2>
-        <div className="flex flex-wrap items-start justify-center gap-4 sm:justify-between sm:gap-2">
-          {(Object.keys(symbolMeta) as JudgmentSymbol[]).map((sym) => (
-            <div key={sym} className="flex w-[4.5rem] flex-col items-center gap-2.5 text-center sm:w-[5.25rem]">
-              <span className={pillClass[sym]}>{sym}</span>
-              <span className="text-[10px] font-medium leading-snug text-muted-foreground sm:text-[11px]">
-                {shortLabels[sym]}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
+    <section>
       <div className="diagnostic-card overflow-hidden">
         <div className="border-b border-brand-muted/25 bg-brand-light/15 px-6 py-4">
-          <p className="text-sm text-muted-foreground">
+          <h2 className="mb-3 text-center text-sm font-bold text-brand-dark md:text-base">
+            判定結果の見方（5段階）と対応方法
+          </h2>
+          <p className="text-center text-sm text-muted-foreground">
             出た記号ごとに、次にやるべきことは以下の通りです。
           </p>
         </div>
         <div className="divide-y divide-brand-muted/25">
-          {(Object.keys(symbolMeta) as JudgmentSymbol[]).map((sym) => {
-            const style = SYMBOL_STYLES[sym];
-            return (
+          {(Object.keys(symbolMeta) as JudgmentSymbol[]).map((sym) => (
               <div
                 key={sym}
                 className="flex items-start gap-4 px-6 py-4 transition-colors hover:bg-brand-light/10"
               >
-                <span
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-full text-base font-black ${style.badge}`}
-                >
+                <span className={cn(SYMBOL_PILL_CLASS[sym], "size-10! shrink-0 text-base")}>
                   {sym}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -369,8 +348,7 @@ export function SymbolLegend() {
                   <p className="mt-0.5 text-sm text-muted-foreground">{symbolMeta[sym].nextStep}</p>
                 </div>
               </div>
-            );
-          })}
+          ))}
         </div>
       </div>
     </section>
