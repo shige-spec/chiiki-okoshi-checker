@@ -135,6 +135,22 @@ function ResultPanel({ result }: { result: EligibilityResult }) {
           </p>
         )}
 
+        {result.warnings.length > 0 && (
+          <div className="rounded-xl border-2 border-amber-300 bg-amber-50 px-5 py-4">
+            <p className="flex items-start gap-2 text-sm font-bold text-amber-900">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+              ご確認ください
+            </p>
+            <ul className="mt-2 space-y-1.5 pl-6">
+              {result.warnings.map((warning) => (
+                <li key={warning} className="list-disc text-sm leading-relaxed text-amber-900">
+                  {warning}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className="rounded-xl bg-brand-light/50 p-4">
           <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-dark">
             <FileSearch className="size-4" />

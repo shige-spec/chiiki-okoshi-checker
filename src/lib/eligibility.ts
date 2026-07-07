@@ -7,6 +7,16 @@ import type {
   ZoneCheckResult,
 } from "./types";
 
+/** 一部条件不利地域（指定都市含む）の categoryId */
+const PARTIAL_DISADVANTAGED_CATEGORY_IDS = new Set([6, 7, 9, 10]);
+
+export const ZONE_LIST_MISSING_WARNING =
+  "条件不利区域の指定は変わることがあるため、念のため転入自治体に確認をしてください。";
+
+function isPartialDisadvantagedCategory(municipality: Municipality): boolean {
+  return PARTIAL_DISADVANTAGED_CATEGORY_IDS.has(municipality.categoryId);
+}
+
 export function lookupMatrixSymbol(
   matrix: JudgmentSymbol[][],
   from: Municipality,
@@ -37,6 +47,19 @@ export function checkZone(
   const hasPartialZones = zones.some((z) => !z.fullCity && z.zoneDescription);
 
   if (zones.length === 0) {
+    if (isPartialDisadvantagedCategory(municipality)) {
+      return {
+        hasPartialZones: false,
+        matchedZone: null,
+        isInDisadvantagedZone: false,
+        message: areaInput?.trim()
+          ? "入力された区域は条件不利区域外と判断されます（条件不利区域リストに該当する区域がありません）。"
+          : "条件不利区域リストに該当する区域がないため、条件不利区域外と判断されます。",
+        warning: ZONE_LIST_MISSING_WARNING,
+        zones: [],
+      };
+    }
+
     return {
       hasPartialZones: false,
       matchedZone: null,
@@ -171,6 +194,13 @@ export function evaluateEligibility(params: {
     }
   }
 
+  const warnings = [fromZoneCheck?.warning, toZoneCheck?.warning].filter(
+    (warning): warning is string => Boolean(warning),
+  );
+  for (const warning of warnings) {
+    explanation.push(`※ ${warning}`);
+  }
+
   return {
     symbol,
     finalEligible,
@@ -182,6 +212,7 @@ export function evaluateEligibility(params: {
     fromZoneCheck,
     toZoneCheck,
     explanation,
+    warnings,
   };
 }
 

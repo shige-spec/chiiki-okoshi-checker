@@ -34,6 +34,7 @@ export type EligibilityResult = {
   fromZoneCheck?: ZoneCheckResult;
   toZoneCheck?: ZoneCheckResult;
   explanation: string[];
+  warnings: string[];
 };
 
 export type ZoneCheckResult = {
@@ -41,5 +42,6 @@ export type ZoneCheckResult = {
   matchedZone: DisadvantagedZone | null;
   isInDisadvantagedZone: boolean | null;
   message: string;
+  warning?: string;
   zones: DisadvantagedZone[];
 };
