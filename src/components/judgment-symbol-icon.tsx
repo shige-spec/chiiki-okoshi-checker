@@ -93,6 +93,7 @@ export function JudgmentSymbolIcon({ symbol, size = 44, className }: Props) {
       width={size}
       height={size}
       viewBox="0 0 48 48"
+      fill="none"
       className={cn("shrink-0", className)}
       aria-hidden
     >

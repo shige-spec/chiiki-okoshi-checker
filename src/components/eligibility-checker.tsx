@@ -74,6 +74,49 @@ function ProgressBar({ step }: { step: number }) {
   );
 }
 
+function CrossSymbolNextSteps() {
+  return (
+    <div className="mt-2 space-y-3 leading-relaxed">
+      <ul className="list-disc space-y-2 pl-5">
+        <li>別の転入先の検討や、住民票の状況を再確認してください。</li>
+        <li>
+          以下の特例の対象にならないか、確認してください。
+          <ol className="mt-2 list-none space-y-2.5 pl-1">
+            <li>
+              1.
+              地域おこし協力隊員であった者（同一地域における活動2年以上、かつ解嘱1年以内）が他の地域（3大都市圏外の全ての市町村及び3大都市圏内の条件不利地域）の隊員となる場合。
+            </li>
+            <li>
+              2.
+              海外に在留し市町村が備える住民基本台帳に登録されていない者で、3大都市圏外の全ての市町村及び3大都市圏内の条件不利地域に生活の拠点を移し、住民票を異動させた者。
+            </li>
+            <li>
+              3.
+              語学指導等を行う外国青年招致事業（以下「JETプログラム」という。）を終了した者（プログラム参加者としての活動2年以上、かつプログラムを終了した日から1年以内）については、同様の特例に加え、住民票を異動せず、JETプログラムにおける活動地域と同一地域（ただし、3大都市圏外の全ての市町村及び3大都市圏内の条件不利地域に限る。）で地域おこし協力隊になることができる。
+            </li>
+            <li>
+              4.
+              「3大都市圏内の都市地域」に区分される市町村のうち、平成17年から平成27年の人口減少率が11パーセント以上である市町村。
+            </li>
+          </ol>
+        </li>
+      </ul>
+      <p className="text-xs text-muted-foreground">
+        （参考：
+        <a
+          href="https://www.soumu.go.jp/chiikiokoshitai/faq/index.html"
+          className="font-medium text-brand underline decoration-brand/40 underline-offset-2 hover:text-brand-dark"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          https://www.soumu.go.jp/chiikiokoshitai/faq/index.html
+        </a>
+        　→A1）
+      </p>
+    </div>
+  );
+}
+
 function ResultPanel({ result }: { result: EligibilityResult }) {
   const style = SYMBOL_STYLES[result.symbol];
   const Icon = style.icon;
@@ -94,11 +137,7 @@ function ResultPanel({ result }: { result: EligibilityResult }) {
               {result.to.pref} {result.to.name}
             </p>
           </div>
-          <JudgmentSymbolIcon
-            symbol={result.symbol}
-            size={96}
-            className="shadow-lg"
-          />
+          <JudgmentSymbolIcon symbol={result.symbol} size={96} />
         </div>
       </div>
 
@@ -167,10 +206,10 @@ function ResultPanel({ result }: { result: EligibilityResult }) {
           </ul>
         </div>
 
-        <p className="rounded-xl bg-white/80 px-4 py-3 text-sm text-muted-foreground shadow-sm">
+        <div className="rounded-xl bg-white/80 px-4 py-3 text-sm text-muted-foreground shadow-sm">
           <strong className="text-brand-dark">次にやること：</strong>
-          {meta.nextStep}
-        </p>
+          {result.symbol === "×" ? <CrossSymbolNextSteps /> : meta.nextStep}
+        </div>
       </div>
     </div>
   );
