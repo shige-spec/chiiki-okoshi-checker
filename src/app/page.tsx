@@ -91,7 +91,9 @@ export default function Home() {
                 </a>
                 に基づいた
                 <strong className="text-foreground">目安判定チェックツール</strong>
-                です。判定結果については必ずしも正確さを保証されているものではないので、最終判断は受入自治体に必ずご確認ください。
+                です。判定結果については必ずしも正確さを保証されているものではないので、どの結果が表示された場合においても、
+                <strong className="font-bold text-red-600">最終判断は受入自治体に必ずご確認ください</strong>
+                。
               </p>
             </div>
 
