@@ -122,7 +122,18 @@ export default function Home() {
       </div>
 
       <footer className="relative z-10 border-t border-[#e8ecef] bg-[#f5f7f9] py-5 text-center">
-        <p className="text-xs text-muted-foreground">©︎ Since 2026 besidz Inc.All Rights Reserved</p>
+        <p className="text-xs text-muted-foreground">
+          ©︎ Since 2026{" "}
+          <a
+            href="https://www.besidz.jp/"
+            className="font-medium text-brand underline decoration-brand/40 underline-offset-2 hover:text-brand-dark"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            besidz Inc.
+          </a>
+          All Rights Reserved
+        </p>
       </footer>
     </div>
   );
