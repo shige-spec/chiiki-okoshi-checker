@@ -221,23 +221,9 @@ export function EligibilityChecker() {
   const [fromArea, setFromArea] = useState("");
   const [toArea, setToArea] = useState("");
   const [result, setResult] = useState<EligibilityResult | null>(null);
+  const [inputError, setInputError] = useState<string | null>(null);
 
   const currentStep = result ? 3 : !from ? 1 : !to ? 2 : 3;
-
-  const handleCheck = () => {
-    if (!from || !to) return;
-    setResult(
-      evaluateEligibility({
-        from,
-        to,
-        matrix,
-        symbolMeta,
-        zonesByMunicipality,
-        fromAreaInput: fromArea,
-        toAreaInput: toArea,
-      }),
-    );
-  };
 
   const previewNeedsFromArea = useMemo(() => {
     if (!from || !to) return false;
@@ -250,6 +236,32 @@ export function EligibilityChecker() {
     const sym = matrix[to.categoryId - 1][from.categoryId - 1];
     return sym === "▲" || sym === "□";
   }, [from, to]);
+
+  const handleCheck = () => {
+    if (!from || !to) return;
+
+    const missing: string[] = [];
+    if (previewNeedsFromArea && !fromArea.trim()) missing.push("転出地");
+    if (previewNeedsToArea && !toArea.trim()) missing.push("転入地");
+    if (missing.length > 0) {
+      setInputError(`${missing.join("・")}の町名・区域を入力してください`);
+      setResult(null);
+      return;
+    }
+
+    setInputError(null);
+    setResult(
+      evaluateEligibility({
+        from,
+        to,
+        matrix,
+        symbolMeta,
+        zonesByMunicipality,
+        fromAreaInput: fromArea,
+        toAreaInput: toArea,
+      }),
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -270,6 +282,7 @@ export function EligibilityChecker() {
               onChange={(m) => {
                 setFrom(m);
                 setResult(null);
+                setInputError(null);
               }}
               municipalities={municipalities}
               accent="from"
@@ -281,6 +294,7 @@ export function EligibilityChecker() {
               onChange={(m) => {
                 setTo(m);
                 setResult(null);
+                setInputError(null);
               }}
               municipalities={municipalities}
               accent="to"
@@ -312,7 +326,10 @@ export function EligibilityChecker() {
                     className="h-12 rounded-xl border-amber-200 bg-white text-base focus-visible:ring-amber-300"
                     placeholder="例: ◯◯市◯◯"
                     value={fromArea}
-                    onChange={(e) => setFromArea(e.target.value)}
+                    onChange={(e) => {
+                      setFromArea(e.target.value);
+                      setInputError(null);
+                    }}
                   />
                 </div>
               )}
@@ -323,7 +340,10 @@ export function EligibilityChecker() {
                     className="h-12 rounded-xl border-amber-200 bg-white text-base focus-visible:ring-amber-300"
                     placeholder="例: 旧○○町の区域"
                     value={toArea}
-                    onChange={(e) => setToArea(e.target.value)}
+                    onChange={(e) => {
+                      setToArea(e.target.value);
+                      setInputError(null);
+                    }}
                   />
                 </div>
               )}
@@ -331,6 +351,15 @@ export function EligibilityChecker() {
           )}
 
           <div className="flex flex-col items-center gap-3 pt-2">
+            {inputError && (
+              <p
+                role="alert"
+                className="flex w-full max-w-md items-center justify-center gap-2 rounded-xl border-2 border-red-300 bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+              >
+                <AlertTriangle className="size-4 shrink-0" />
+                {inputError}
+              </p>
+            )}
             <button
               type="button"
               className="btn-primary w-full max-w-md px-12"
