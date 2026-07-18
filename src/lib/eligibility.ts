@@ -26,22 +26,12 @@ export function normalizeAreaInput(input: string): string {
   return input.trim().replace(/\s+/g, "");
 }
 
-function matchesZoneKeyword(areaInput: string, zone: DisadvantagedZone): boolean {
-  if (!areaInput) return false;
-  const normalized = normalizeAreaInput(areaInput);
-  return zone.keywords.some((keyword) => {
-    const k = keyword.replace(/\s+/g, "");
-    return normalized.includes(k) || k.includes(normalized);
-  });
-}
-
 export function checkZone(
   municipality: Municipality,
   areaInput: string | undefined,
   zonesByMunicipality: Record<string, DisadvantagedZone[]>,
 ): ZoneCheckResult {
   const zones = zonesByMunicipality[municipality.name] ?? [];
-  const hasPartialZones = zones.some((z) => !z.fullCity && z.zoneDescription);
 
   if (zones.length === 0) {
     if (isPartialDisadvantagedCategory(municipality)) {
@@ -92,21 +82,9 @@ export function checkZone(
     };
   }
 
-  const matchedZone =
-    zones.find((z) => !z.fullCity && matchesZoneKeyword(areaInput, z)) ?? null;
-
-  if (matchedZone) {
-    return {
-      hasPartialZones: true,
-      matchedZone,
-      isInDisadvantagedZone: true,
-      message: `入力された区域は条件不利区域（${matchedZone.zoneDescription}）に該当します。`,
-      zones,
-    };
-  }
-
-  // 旧町村名と現在の住所表記の対応は一覧から判定できないため、
-  // 不一致でも「区域外」とは断定せず自治体への確認を促す。
+  // 一覧に記載されるのは「旧◯◯町の区域」のような旧町村名であり、
+  // 現在の住所表記との対応は機械的に判定できない。入力が旧町村名と
+  // 一致した場合でも区域内/外を断定せず、常に自治体への確認を促す。
   const zoneList = zones
     .filter((z) => z.zoneDescription)
     .map((z) => z.zoneDescription)

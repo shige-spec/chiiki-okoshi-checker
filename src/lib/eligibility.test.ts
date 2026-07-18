@@ -49,7 +49,7 @@ describe("evaluateEligibility", () => {
     );
   });
 
-  it("石巻市（旧河北町を入力）→ 小樽市は区域内のため対象外", () => {
+  it("石巻市（旧河北町を入力）→ 小樽市も断定せず△のまま自治体確認を促す", () => {
     const from = muni.find((m) => m.name === "石巻市" && m.pref === "宮城県")!;
     const to = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
 
@@ -62,47 +62,36 @@ describe("evaluateEligibility", () => {
       fromAreaInput: "旧河北町、旧雄勝町、旧北上町、旧牡鹿町の区域",
     });
 
-    expect(result.fromZoneCheck?.isInDisadvantagedZone).toBe(true);
-    expect(result.finalEligible).toBe(false);
-  });
-
-  it("綾川町（区域が特定できない入力）→ 小樽市は△のまま自治体確認を促す", () => {
-    const from = muni.find((m) => m.name === "綾川町" && m.pref === "香川県")!;
-    const to = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
-
-    const result = evaluateEligibility({
-      from,
-      to,
-      matrix: matrixData.matrix,
-      symbolMeta: matrixData.symbolMeta,
-      zonesByMunicipality: zonesData,
-      fromAreaInput: "香川県 綾川町",
-    });
-
-    expect(result.matrixSymbol).toBe("△");
+    expect(result.fromZoneCheck?.isInDisadvantagedZone).toBe(null);
     expect(result.symbol).toBe("△");
     expect(result.finalEligible).toBe(null);
-    expect(result.fromZoneCheck?.message).toContain(
-      "香川県綾川町の「旧綾上町の区域」が過疎地域として指定されています",
-    );
+    expect(result.fromZoneCheck?.message).toContain("自治体に確認してください");
   });
 
-  it("綾川町（旧綾上町を入力）→ 小樽市は区域内のため対象外", () => {
-    const from = muni.find((m) => m.name === "綾川町" && m.pref === "香川県")!;
-    const to = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
+  it.each(["香川県 綾川町", "綾川町", "旧綾川町", "旧綾上町", "綾上町"])(
+    "綾川町（入力: %s）→ 小樽市は常に△のまま自治体確認を促す",
+    (fromAreaInput) => {
+      const from = muni.find((m) => m.name === "綾川町" && m.pref === "香川県")!;
+      const to = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
 
-    const result = evaluateEligibility({
-      from,
-      to,
-      matrix: matrixData.matrix,
-      symbolMeta: matrixData.symbolMeta,
-      zonesByMunicipality: zonesData,
-      fromAreaInput: "旧綾上町",
-    });
+      const result = evaluateEligibility({
+        from,
+        to,
+        matrix: matrixData.matrix,
+        symbolMeta: matrixData.symbolMeta,
+        zonesByMunicipality: zonesData,
+        fromAreaInput,
+      });
 
-    expect(result.fromZoneCheck?.isInDisadvantagedZone).toBe(true);
-    expect(result.finalEligible).toBe(false);
-  });
+      expect(result.symbol).toBe("△");
+      expect(result.finalEligible).toBe(null);
+      expect(result.fromZoneCheck?.isInDisadvantagedZone).toBe(null);
+      expect(result.fromZoneCheck?.message).toContain(
+        "香川県綾川町の「旧綾上町の区域」が過疎地域として指定されています",
+      );
+      expect(result.fromZoneCheck?.message).toContain("自治体に確認してください");
+    },
+  );
 
   it("坂出市西大浜 → 小樽市は区域データなしでも△のまま自治体確認を促す", () => {
     const from = muni.find((m) => m.name === "坂出市" && m.pref === "香川県")!;
