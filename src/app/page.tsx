@@ -121,19 +121,29 @@ export default function Home() {
         </div>
       </div>
 
-      <footer className="relative z-10 border-t border-[#e8ecef] bg-[#f5f7f9] py-5 text-center">
-        <p className="text-xs text-muted-foreground">
-          ©︎ Since 2026{" "}
+      <footer className="relative z-10 border-t border-[#e8ecef] bg-[#f5f7f9] py-5">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-4 sm:flex-row sm:justify-between">
+          <p className="text-xs text-muted-foreground">
+            ©︎ Since 2026{" "}
+            <a
+              href="https://www.besidz.jp/"
+              className="font-medium text-brand underline decoration-brand/40 underline-offset-2 hover:text-brand-dark"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              besidz Inc.
+            </a>
+            All Rights Reserved
+          </p>
           <a
-            href="https://www.besidz.jp/"
-            className="font-medium text-brand underline decoration-brand/40 underline-offset-2 hover:text-brand-dark"
+            href="https://www.besidz.jp/term/"
+            className="text-xs font-medium text-brand underline decoration-brand/40 underline-offset-2 hover:text-brand-dark"
             target="_blank"
             rel="noopener noreferrer"
           >
-            besidz Inc.
+            利用規約
           </a>
-          All Rights Reserved
-        </p>
+        </div>
       </footer>
     </div>
   );
