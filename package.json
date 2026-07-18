@@ -8,6 +8,7 @@
     "generate-data": "node scripts/generate-data.mjs",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
     "deploy:surge": "./deploy.sh",
     "deploy:vercel": "./deploy-vercel.sh",
     "deploy:all": "./deploy-all.sh"
@@ -33,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

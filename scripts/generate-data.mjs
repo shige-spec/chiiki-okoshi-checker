@@ -101,10 +101,16 @@ function parseZonePdfText(text) {
   const zones = [];
   for (const line of text.split("\n")) {
     const trimmed = line.trim();
-    const m = trimmed.match(/^(.+?[市区町村])(?:\s+(.+?))?\s*○\s*$/);
+    // 対応形式:
+    //   "高松市 旧塩江町の区域 ○" / "東かがわ市 ○"
+    //   "小豆郡 土庄町 ○"（郡名は自治体名に含めない）
+    //   "綾歌郡 綾川町のうち旧綾上町の区域 ○"（「のうち」区切りでスペースなし）
+    const m = trimmed.match(
+      /^(?:(\S+郡)\s+)?(\S+?[市区町村])(?:の区域)?(?:のうち(\S+?))?(?:\s+(\S.*?))?\s*○\s*$/,
+    );
     if (!m) continue;
-    const municipality = m[1];
-    const zoneDescription = (m[2] || "").trim();
+    const municipality = m[2];
+    const zoneDescription = (m[3] || m[4] || "").trim();
     if (municipality.length > 20 || municipality.includes("都道府県")) continue;
 
     const keywords = [];
@@ -131,10 +137,28 @@ function parseZonePdfText(text) {
   return Object.fromEntries(byMunicipality);
 }
 
+function writeZones(outDir) {
+  const zoneCache = path.join(__dirname, "disadvantaged-zones.raw.txt");
+  if (!fs.existsSync(zoneCache)) return;
+  const zones = parseZonePdfText(fs.readFileSync(zoneCache, "utf8"));
+  fs.writeFileSync(
+    path.join(outDir, "disadvantaged-zones.json"),
+    JSON.stringify(zones, null, 0),
+  );
+  console.log(`zones: ${Object.keys(zones).length} municipalities`);
+}
+
 async function main() {
-  const municipalities = await fetchMunicipalities();
   const outDir = path.join(root, "src", "data");
   fs.mkdirSync(outDir, { recursive: true });
+
+  // 区域データのみの再生成（ネットワーク不要）: node scripts/generate-data.mjs --zones-only
+  if (process.argv.includes("--zones-only")) {
+    writeZones(outDir);
+    return;
+  }
+
+  const municipalities = await fetchMunicipalities();
 
   fs.writeFileSync(
     path.join(outDir, "municipalities.json"),
@@ -145,16 +169,7 @@ async function main() {
     JSON.stringify({ matrix: MATRIX, categoryLabels: CATEGORY_LABELS, symbolMeta: SYMBOL_META }, null, 2),
   );
 
-  // Zones bundled separately — generated from cached PDF extract if present
-  const zoneCache = path.join(__dirname, "disadvantaged-zones.raw.txt");
-  if (fs.existsSync(zoneCache)) {
-    const zones = parseZonePdfText(fs.readFileSync(zoneCache, "utf8"));
-    fs.writeFileSync(
-      path.join(outDir, "disadvantaged-zones.json"),
-      JSON.stringify(zones, null, 0),
-    );
-    console.log(`zones: ${Object.keys(zones).length} municipalities`);
-  }
+  writeZones(outDir);
 
   console.log(`municipalities: ${municipalities.length}`);
 }

@@ -10,9 +10,6 @@ import type {
 /** 一部条件不利地域（指定都市含む）の categoryId */
 const PARTIAL_DISADVANTAGED_CATEGORY_IDS = new Set([6, 7, 9, 10]);
 
-export const ZONE_LIST_MISSING_WARNING =
-  "条件不利区域の指定は変わることがあるため、念のため転入自治体に確認をしてください。";
-
 function isPartialDisadvantagedCategory(municipality: Municipality): boolean {
   return PARTIAL_DISADVANTAGED_CATEGORY_IDS.has(municipality.categoryId);
 }
@@ -48,14 +45,16 @@ export function checkZone(
 
   if (zones.length === 0) {
     if (isPartialDisadvantagedCategory(municipality)) {
+      // 過疎地域一覧に記載がなくても、離島振興法・山村振興法・半島振興法など
+      // 他の法律に基づく条件不利区域の可能性があるため「区域外」とは断定しない。
+      const areaLabel = areaInput?.trim()
+        ? `入力された地域「${normalizeAreaInput(areaInput)}」`
+        : "該当の地域";
       return {
         hasPartialZones: false,
         matchedZone: null,
-        isInDisadvantagedZone: false,
-        message: areaInput?.trim()
-          ? "入力された区域は条件不利区域外と判断されます（条件不利区域リストに該当する区域がありません）。"
-          : "条件不利区域リストに該当する区域がないため、条件不利区域外と判断されます。",
-        warning: ZONE_LIST_MISSING_WARNING,
+        isInDisadvantagedZone: null,
+        message: `総務省の「過疎地域市町村等一覧」には${municipality.pref}${municipality.name}の区域指定の記載がありませんが、他の法律（離島振興法・山村振興法・半島振興法など）に基づく条件不利区域が存在する可能性があります。${areaLabel}が条件不利区域に該当するかを自治体に確認してください。`,
         zones: [],
       };
     }

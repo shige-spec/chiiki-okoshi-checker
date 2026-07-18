@@ -66,7 +66,45 @@ describe("evaluateEligibility", () => {
     expect(result.finalEligible).toBe(false);
   });
 
-  it("坂出市西大浜 → 小樽市は区域データなしのため区域外扱い（△→○）", () => {
+  it("綾川町（区域が特定できない入力）→ 小樽市は△のまま自治体確認を促す", () => {
+    const from = muni.find((m) => m.name === "綾川町" && m.pref === "香川県")!;
+    const to = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
+
+    const result = evaluateEligibility({
+      from,
+      to,
+      matrix: matrixData.matrix,
+      symbolMeta: matrixData.symbolMeta,
+      zonesByMunicipality: zonesData,
+      fromAreaInput: "香川県 綾川町",
+    });
+
+    expect(result.matrixSymbol).toBe("△");
+    expect(result.symbol).toBe("△");
+    expect(result.finalEligible).toBe(null);
+    expect(result.fromZoneCheck?.message).toContain(
+      "香川県綾川町の「旧綾上町の区域」が過疎地域として指定されています",
+    );
+  });
+
+  it("綾川町（旧綾上町を入力）→ 小樽市は区域内のため対象外", () => {
+    const from = muni.find((m) => m.name === "綾川町" && m.pref === "香川県")!;
+    const to = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
+
+    const result = evaluateEligibility({
+      from,
+      to,
+      matrix: matrixData.matrix,
+      symbolMeta: matrixData.symbolMeta,
+      zonesByMunicipality: zonesData,
+      fromAreaInput: "旧綾上町",
+    });
+
+    expect(result.fromZoneCheck?.isInDisadvantagedZone).toBe(true);
+    expect(result.finalEligible).toBe(false);
+  });
+
+  it("坂出市西大浜 → 小樽市は区域データなしでも△のまま自治体確認を促す", () => {
     const from = muni.find((m) => m.name === "坂出市" && m.pref === "香川県")!;
     const to = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
 
@@ -80,17 +118,34 @@ describe("evaluateEligibility", () => {
     });
 
     expect(result.matrixSymbol).toBe("△");
-    expect(result.fromZoneCheck?.isInDisadvantagedZone).toBe(false);
-    expect(result.finalEligible).toBe(true);
-    expect(result.symbol).toBe("○");
-    expect(result.warnings).toContain(
-      "条件不利区域の指定は変わることがあるため、念のため転入自治体に確認をしてください。",
+    expect(result.fromZoneCheck?.isInDisadvantagedZone).toBe(null);
+    expect(result.finalEligible).toBe(null);
+    expect(result.symbol).toBe("△");
+    expect(result.fromZoneCheck?.message).toContain(
+      "香川県坂出市の区域指定の記載がありませんが",
     );
+    expect(result.fromZoneCheck?.message).toContain("自治体に確認してください");
   });
 
-  it("札幌市 → 小樽市は×", () => {
+  it("札幌市（3大都市圏外 指定都市）→ 小樽市は○", () => {
     const from = muni.find((m) => m.name === "札幌市" && m.pref === "北海道")!;
     const to = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
+
+    const result = evaluateEligibility({
+      from,
+      to,
+      matrix: matrixData.matrix,
+      symbolMeta: matrixData.symbolMeta,
+      zonesByMunicipality: zonesData,
+    });
+
+    expect(result.symbol).toBe("○");
+    expect(result.finalEligible).toBe(true);
+  });
+
+  it("小樽市（全部条件不利地域）→ 札幌市（都市地域）は×", () => {
+    const from = muni.find((m) => m.name === "小樽市" && m.pref === "北海道")!;
+    const to = muni.find((m) => m.name === "札幌市" && m.pref === "北海道")!;
 
     const result = evaluateEligibility({
       from,
