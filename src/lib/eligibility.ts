@@ -106,11 +106,17 @@ export function checkZone(
     };
   }
 
+  // 旧町村名と現在の住所表記の対応は一覧から判定できないため、
+  // 不一致でも「区域外」とは断定せず自治体への確認を促す。
+  const zoneList = zones
+    .filter((z) => z.zoneDescription)
+    .map((z) => z.zoneDescription)
+    .join("、");
   return {
     hasPartialZones: true,
     matchedZone: null,
-    isInDisadvantagedZone: false,
-    message: "入力された区域は条件不利区域外と判断されます。",
+    isInDisadvantagedZone: null,
+    message: `総務省の「過疎地域市町村等一覧」では、${municipality.pref}${municipality.name}の「${zoneList}」が過疎地域として指定されています。入力された地域「${normalizeAreaInput(areaInput)}」がその区域に該当するかを自治体に確認してください。`,
     zones,
   };
 }
